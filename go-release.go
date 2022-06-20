@@ -12,7 +12,8 @@ func main() {
 		Name:  "git-release",
 		Usage: "Release shit",
 		Action: func(c *cli.Context) error {
-			go_release.GetCurrentRepo()
+			repo := go_release.GetCurrentRepo()
+			go_release.GetCommitMessages(repo)
 			return nil
 		},
 	}
