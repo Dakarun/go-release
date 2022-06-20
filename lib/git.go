@@ -25,8 +25,11 @@ func GetCommitMessages(repo *git.Repository) {
 		fmt.Errorf("Issue getting head from branch %s", err)
 	}
 	messages, err := repo.Log(&git.LogOptions{From: ref.Hash()})
+	i := 0
 	messages.ForEach(func(commit *object.Commit) error {
+		i++
 		fmt.Println(commit.Message)
 		return nil
 	})
+	fmt.Println(i)
 }
