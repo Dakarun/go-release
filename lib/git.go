@@ -5,6 +5,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"os"
+	"os/exec"
+	"strings"
 )
 
 func GetCurrentRepo() *git.Repository {
@@ -13,9 +15,6 @@ func GetCurrentRepo() *git.Repository {
 	if err != nil {
 		fmt.Errorf("Failed to open git repository at %s: %s", dir, err)
 	}
-
-	ref, err := repo.Head()
-	fmt.Println(ref.Name())
 	return repo
 }
 
@@ -28,8 +27,27 @@ func GetCommitMessages(repo *git.Repository) {
 	i := 0
 	messages.ForEach(func(commit *object.Commit) error {
 		i++
-		fmt.Println(commit.Message)
 		return nil
 	})
-	fmt.Println(i)
+}
+
+func IsWorkingTreeClean(repo *git.Repository) bool {
+	worktree, err := repo.Worktree()
+	if err != nil {
+		fmt.Errorf("couldn't get worktree: %s", err)
+	}
+	status, err := worktree.Status()
+	if err != nil {
+		fmt.Errorf("couldn't get worktree status: %s", err)
+	}
+	return status.IsClean()
+}
+
+// GetProjectRoot TODO: Find a more elegant way to get project root
+func GetProjectRoot() (string, error) {
+	path, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(path)), nil
 }
